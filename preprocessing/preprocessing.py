@@ -21,49 +21,36 @@ Generating Preprocessed Docs Steps:
 8. (optional) Learn new embeddings using the preprocessed corpus 
 """
 from preprocessing_imports import *
-# from preprocessing_utils import get_data,vocab_filtered_data,docs_labels_preprocessing,embeddingsVectors_to_txt
-# from preprocessing_data import get_bbc_data,get_searchsnippet_data,get_AGNews_data_120k,get_yahoo_answers
 from preprocessing_utils import *
-from preprocessing_data import *
+from preprocessing_data import get_bbc_data
+import gensim.downloader as api
 
-## Download Google word2vec pretrained model >>
-## https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?resourcekey=0-wjGZdNAUop6WykTtMip30g
-# !wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=0B7XkCwpI5KDYNlNUTTlSS21pQmM' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=0B7XkCwpI5KDYNlNUTTlSS21pQmM" -O GoogleNews-vectors-negative300.bin.gz && rm -rf /tmp/cookies.txt
-# !gunzip GoogleNews-vectors-negative300.bin.gz
-
+# download and extract the GoogleNews-vectors-negative300.bin (https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz)
 word2vec_model = models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
 
+def get_data(data_to_get,dtype):
+  data_to_get = data_to_get.lower()
+  if data_to_get == 'bbc':
+    corpus,labels = get_bbc_data(dtype)
+  return corpus,labels
+
 ## Driver - Data Generation
-all_data_to_get = ['bbc']  # bbc,searchsnippet,agnews120k,yahooanswers
+all_data_to_get = ['bbc'] 
 dtypes = ['short'] # short text 
 
 ## Settings :- 
 min_doc_len = 3
 min_word_length = 3
-short_len_doc = 21
 
 generate_skipgram_embeddings = 1 # Yes
 
 home_dir = ''
-# min_df=3
-# if data_to_get == 'bbc': max_features = 2000
-# elif data_to_get == 'searchsnippet': max_features = 3000
-# elif data_to_get == 'wos': max_features = 4000
-
 for data_to_get in all_data_to_get:
 
   if data_to_get == 'bbc': max_features = 2000
-  elif data_to_get == 'searchsnippet': max_features = 3000
-  elif data_to_get == 'wos': max_features = 4000
-  elif data_to_get == 'newscategory': max_features = 4000
-  elif data_to_get == 'agnews120k': max_features = 8000
-  elif data_to_get == 'yahooanswers': max_features = 8000
   else: max_features = 4000
   
   for dtype in dtypes:
-    if data_to_get=='searchsnippet' and dtype=='full':
-      continue
-
     os.chdir(home_dir+"/content")
     docs,labels = get_data(data_to_get,dtype)
     os.makedirs(home_dir+'/content/data_'+data_to_get+"/"+dtype,exist_ok=True)

@@ -1,6 +1,5 @@
 ## Preprocessing_utils.py
 
-from preprocessing_data import get_bbc_data,get_searchsnippet_data,get_AGNews_data_120k,get_yahoo_answers
 from preprocessing_imports import *
 
 def save_obj(obj, name):
@@ -29,18 +28,6 @@ def preprocess_data(doc,word2vec_model,my_punctuation,min_word_length=0):
     doc = filter(lambda x: x in word2vec_model.vocab or x in ".",doc)
     doc = ' '.join(e for e in doc if len(e)>=min_word_length) # if min_word_length is not 3 then filter it out
     return doc
-
-def get_data(data_to_get,dtype):
-  data_to_get = data_to_get.lower()
-  if data_to_get == 'bbc':
-    corpus,labels = get_bbc_data(dtype)
-  elif data_to_get == 'searchsnippet':
-    corpus,labels = get_searchsnippet_data()
-  elif data_to_get == 'agnews120k':
-    corpus,labels = get_AGNews_data_120k()  
-  elif data_to_get == 'yahooanswers':
-    corpus,labels = get_yahoo_answers(dtype)
-  return corpus,labels
 
 def vocab_filtered_data(doc,vocab):
   doc = word_tokenize(doc)
